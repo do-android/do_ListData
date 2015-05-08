@@ -115,7 +115,7 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	public void addData(DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
 		List<DoJsonValue> _data = _dictParas.getOneArray("data");
 		int _index = DoTextHelper.strToInt(_dictParas.getOneText("index", ""), -1);
-		if (_index != -1 && _index < this.data.size() - 1) {
+		if (_index != -1 && _index <= this.data.size() - 1) {
 			this.data.addAll(_index, _data);
 		} else {
 			this.data.addAll(_data);
@@ -126,7 +126,7 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	public void addOne(DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
 		DoJsonValue _data = _dictParas.getOneValue("data");
 		int _index = DoTextHelper.strToInt(_dictParas.getOneText("index", ""), -1);
-		if (_index != -1 && _index < this.data.size() - 1) {
+		if (_index != -1 && _index <= this.data.size() - 1) {
 			this.data.add(_index, _data);
 		} else {
 			this.data.add(_data);

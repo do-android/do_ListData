@@ -161,9 +161,11 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 		List<DoJsonValue> _data = new ArrayList<DoJsonValue>();
 		for (int i = 0; i < _indexs.size(); i++) {
 			int _index = DoTextHelper.strToInt(_indexs.get(i), 0);
-			DoJsonValue _value = this.data.get(_index);
-			if (_value != null) {
+			if(this.data.size() > _index){
+				DoJsonValue _value = this.data.get(_index);
 				_data.add(_value);
+			}else{
+				_data.add(null);
 			}
 		}
 		_invokeResult.setResultArray(_data);

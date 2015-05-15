@@ -203,25 +203,25 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 		if (this.data.size() == 0) {
 			return;
 		}
-		int _startIndex = _dictParas.getOneInteger("startIndex", -1);
-		int _length = _dictParas.getOneInteger("length", -1);
-		if (_startIndex < 0) {
-			_startIndex = 0;
+		int fromIndex = _dictParas.getOneInteger("fromIndex", -1);
+		int toIndex = _dictParas.getOneInteger("toIndex", this.data.size());
+		if (fromIndex < 0) {
+			fromIndex = 0;
 		}
 
-		if (_startIndex != 0 && _startIndex > this.data.size() - 1) {
-			_startIndex = this.data.size() - 1;
+		if (fromIndex != 0 && fromIndex > this.data.size() - 1) {
+			fromIndex = this.data.size() - 1;
 		}
 
-		if (_length < 0) {
-			_length = 0;
+		if (toIndex < 0) {
+			toIndex = 0;
 		}
-		if (_length >= this.data.size()) {
-			_length = this.data.size();
+		if (toIndex >= this.data.size()) {
+			toIndex = this.data.size();
 		}
 
 		List<DoJsonValue> _data = new ArrayList<DoJsonValue>();
-		for (int i = _startIndex; i < _length; i++) {
+		for (int i = fromIndex; i < toIndex; i++) {
 			DoJsonValue _value = this.data.get(i);
 			if (_value != null) {
 				_data.add(this.data.get(i));
@@ -235,25 +235,25 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 		if (this.data.size() == 0) {
 			return;
 		}
-		int _startIndex = _dictParas.getOneInteger("startIndex", -1);
-		int _length = _dictParas.getOneInteger("length", -1);
-		if (_startIndex < 0) {
-			_startIndex = 0;
+		int fromIndex = _dictParas.getOneInteger("fromIndex", -1);
+		int toIndex = _dictParas.getOneInteger("toIndex", -1);
+		if (fromIndex < 0) {
+			fromIndex = 0;
 		}
 
-		if (_startIndex != 0 && _startIndex > this.data.size() - 1) {
-			_startIndex = this.data.size() - 1;
+		if (fromIndex != 0 && fromIndex > this.data.size() - 1) {
+			fromIndex = this.data.size() - 1;
 		}
 
-		if (_length < 0) {
-			_length = 0;
+		if (toIndex < 0) {
+			toIndex = 0;
 		}
-		if (_length >= this.data.size()) {
-			_length = this.data.size();
+		if (toIndex >= this.data.size()) {
+			toIndex = this.data.size();
 		}
 
 		List<DoJsonValue> _data = new ArrayList<DoJsonValue>();
-		for (int i = _startIndex; i < _length; i++) {
+		for (int i = fromIndex; i < toIndex; i++) {
 			DoJsonValue _value = this.data.get(i);
 			if (_value != null) {
 				_data.add(_value);

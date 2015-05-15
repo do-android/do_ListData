@@ -104,7 +104,8 @@ public class DoPage implements DoIPage {
 	}
 
 	@Override
-	public DoMultitonModule createMultitonModule(String _typeID, String _id) throws Exception {
+	public DoMultitonModule createMultitonModule(String _typeID, String _id)
+			throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}

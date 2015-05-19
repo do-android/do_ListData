@@ -1,11 +1,14 @@
 package doext.implement;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import core.helper.DoJsonHelper;
 import core.helper.DoTextHelper;
-import core.helper.jsonparse.DoJsonNode;
-import core.helper.jsonparse.DoJsonValue;
 import core.interfaces.DoIListData;
 import core.interfaces.DoIScriptEngine;
 import core.interfaces.datamodel.DoIDataSource;
@@ -22,11 +25,11 @@ import doext.define.do_ListData_MAbstract;
  */
 public class do_ListData_Model extends do_ListData_MAbstract implements do_ListData_IMethod, DoIListData, DoIDataSource {
 
-	private List<DoJsonValue> data;
+	private JSONArray data;
 
 	public do_ListData_Model() throws Exception {
 		super();
-		data = new ArrayList<DoJsonValue>();
+		data = new JSONArray();
 	}
 
 	/**
@@ -38,7 +41,7 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	 * @_invokeResult 用于返回方法结果对象
 	 */
 	@Override
-	public boolean invokeSyncMethod(String _methodName, DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+	public boolean invokeSyncMethod(String _methodName, JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
 		if ("addData".equals(_methodName)) {
 			addData(_dictParas, _scriptEngine, _invokeResult);
 			return true;
@@ -99,7 +102,7 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	 *                    DoInvokeResult(this.getUniqueKey());
 	 */
 	@Override
-	public boolean invokeAsyncMethod(String _methodName, DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, String _callbackFuncName) throws Exception {
+	public boolean invokeAsyncMethod(String _methodName, JSONObject _dictParas, DoIScriptEngine _scriptEngine, String _callbackFuncName) throws Exception {
 		// ...do something
 		return super.invokeAsyncMethod(_methodName, _dictParas, _scriptEngine, _callbackFuncName);
 	}
@@ -112,24 +115,55 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	 * @_invokeResult 用于返回方法结果对象
 	 */
 	@Override
-	public void addData(DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
-		List<DoJsonValue> _data = _dictParas.getOneArray("data");
-		int _index = DoTextHelper.strToInt(_dictParas.getOneText("index", ""), -1);
-		if (_index != -1 && _index <= this.data.size() - 1) {
-			this.data.addAll(_index, _data);
+	public void addData(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+		JSONArray _data = DoJsonHelper.getJSONArray(_dictParas, "data");
+		int _index = DoTextHelper.strToInt(DoJsonHelper.getString(_dictParas, "index", ""), -1);
+		if (_index != -1 && _index <= data.length() - 1) {
+			// 把原数组中从 _index开始的数据保存一份
+			JSONArray _array = new JSONArray();
+			for (int i = _index; i < data.length(); i++) {
+				Object _obj = data.get(i);
+				_array.put(_obj);
+			}
+
+			for (int i = 0; i < _data.length(); i++) {
+				Object _obj = _data.get(i);
+				data.put(i + _index, _obj);
+			}
+
+			for (int i = 0; i < _array.length(); i++) {
+				Object _obj = _array.get(i);
+				data.put(_obj);
+			}
+
 		} else {
-			this.data.addAll(_data);
+			for (int i = 0; i < _data.length(); i++) {
+				Object _obj = _data.get(i);
+				data.put(_obj);
+			}
 		}
+
 	}
 
 	@Override
-	public void addOne(DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
-		DoJsonValue _data = _dictParas.getOneValue("data");
-		int _index = DoTextHelper.strToInt(_dictParas.getOneText("index", ""), -1);
-		if (_index != -1 && _index <= this.data.size() - 1) {
-			this.data.add(_index, _data);
+	public void addOne(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+		Object _data = DoJsonHelper.get(_dictParas, "data");
+		int _index = DoTextHelper.strToInt(DoJsonHelper.getString(_dictParas, "index", ""), -1);
+		if (_index != -1 && _index <= this.data.length() - 1) {
+			// 把原数组中从 _index开始的数据保存一份
+			JSONArray _array = new JSONArray();
+			for (int i = _index; i < data.length(); i++) {
+				Object _obj = data.get(i);
+				_array.put(_obj);
+			}
+			data.put(_index, _data);
+			for (int i = 0; i < _array.length(); i++) {
+				Object _obj = _array.get(i);
+				data.put(_obj);
+			}
+
 		} else {
-			this.data.add(_data);
+			this.data.put(_data);
 		}
 	}
 
@@ -141,8 +175,8 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	 * @_invokeResult 用于返回方法结果对象
 	 */
 	@Override
-	public void getCount(DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
-		_invokeResult.setResultInteger(data.size());
+	public void getCount(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+		_invokeResult.setResultInteger(data.length());
 	}
 
 	/**
@@ -153,37 +187,35 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	 * @_invokeResult 用于返回方法结果对象
 	 */
 	@Override
-	public void getData(DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
-		if (this.data.size() == 0) {
+	public void getData(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+		if (this.data.length() == 0) {
 			return;
 		}
-		List<String> _indexs = _dictParas.getOneTextArray("indexs");
-		List<DoJsonValue> _data = new ArrayList<DoJsonValue>();
-		for (int i = 0; i < _indexs.size(); i++) {
-			int _index = DoTextHelper.strToInt(_indexs.get(i), 0);
-			if(this.data.size() > _index){
-				DoJsonValue _value = this.data.get(_index);
-				_data.add(_value);
-			}else{
-				_data.add(null);
+		JSONArray _data = new JSONArray();
+		JSONArray _indexs = DoJsonHelper.getJSONArray(_dictParas, "indexs");
+		for (int i = 0; i < _indexs.length(); i++) {
+			int _index = _indexs.getInt(i);
+			if (this.data.length() > _index) {
+				_data.put(i, this.data.get(_index));
+			} else {
+				_data.put(i, JSONObject.NULL);
 			}
 		}
 		_invokeResult.setResultArray(_data);
 	}
 
 	@Override
-	public void getOne(DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
-		if (this.data.size() == 0) {
+	public void getOne(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+		if (this.data.length() == 0) {
 			return;
 		}
-
-		int _index = DoTextHelper.strToInt(_dictParas.getOneText("index", ""), -1);
+		int _index = DoJsonHelper.getInt(_dictParas, "index", -1);
 		if (_index < 0) {
 			_index = 0;
 		}
 
-		if (_index != 0 && _index > this.data.size() - 1) {
-			_index = this.data.size() - 1;
+		if (_index != 0 && _index > this.data.length() - 1) {
+			_index = this.data.length() - 1;
 		}
 		_invokeResult.setResultValue(this.data.get(_index));
 	}
@@ -196,72 +228,75 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	 * @_invokeResult 用于返回方法结果对象
 	 */
 	@Override
-	public void removeAll(DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
-		this.data.clear();
+	public void removeAll(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+		this.data = new JSONArray();
 	}
 
 	@Override
-	public void getRange(DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
-		if (this.data.size() == 0) {
+	public void getRange(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+		if (this.data.length() == 0) {
 			return;
 		}
-		int fromIndex = _dictParas.getOneInteger("fromIndex", -1);
-		int toIndex = _dictParas.getOneInteger("toIndex", this.data.size());
+		int fromIndex = DoJsonHelper.getInt(_dictParas, "fromIndex", -1);
+		int toIndex = DoJsonHelper.getInt(_dictParas, "toIndex", this.data.length());
 		if (fromIndex < 0) {
 			fromIndex = 0;
 		}
 
-		if (fromIndex != 0 && fromIndex > this.data.size() - 1) {
-			fromIndex = this.data.size() - 1;
+		if (fromIndex != 0 && fromIndex > this.data.length() - 1) {
+			fromIndex = this.data.length() - 1;
 		}
 
 		if (toIndex < 0) {
 			toIndex = 0;
 		}
-		if (toIndex >= this.data.size()) {
-			toIndex = this.data.size();
+		if (toIndex >= this.data.length()) {
+			toIndex = this.data.length();
 		}
 
-		List<DoJsonValue> _data = new ArrayList<DoJsonValue>();
+		JSONArray _data = new JSONArray();
 		for (int i = fromIndex; i < toIndex; i++) {
-			DoJsonValue _value = this.data.get(i);
+			Object _value = this.data.get(i);
 			if (_value != null) {
-				_data.add(this.data.get(i));
+				_data.put(this.data.get(i));
+			} else {
+				_data.put(JSONObject.NULL);
 			}
 		}
 		_invokeResult.setResultArray(_data);
 	}
 
 	@Override
-	public void removeRange(DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
-		if (this.data.size() == 0) {
+	public void removeRange(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+		if (this.data.length() == 0) {
 			return;
 		}
-		int fromIndex = _dictParas.getOneInteger("fromIndex", -1);
-		int toIndex = _dictParas.getOneInteger("toIndex", -1);
+		int fromIndex = DoJsonHelper.getInt(_dictParas, "fromIndex", -1);
+		int toIndex = DoJsonHelper.getInt(_dictParas, "toIndex", -1);
+
 		if (fromIndex < 0) {
 			fromIndex = 0;
 		}
 
-		if (fromIndex != 0 && fromIndex > this.data.size() - 1) {
-			fromIndex = this.data.size() - 1;
+		if (fromIndex != 0 && fromIndex > this.data.length() - 1) {
+			fromIndex = this.data.length() - 1;
 		}
 
 		if (toIndex < 0) {
 			toIndex = 0;
 		}
-		if (toIndex >= this.data.size()) {
-			toIndex = this.data.size();
+		if (toIndex >= this.data.length()) {
+			toIndex = this.data.length();
 		}
 
-		List<DoJsonValue> _data = new ArrayList<DoJsonValue>();
-		for (int i = fromIndex; i < toIndex; i++) {
-			DoJsonValue _value = this.data.get(i);
-			if (_value != null) {
-				_data.add(_value);
+		JSONArray _newData = new JSONArray();
+		int _len = this.data.length();
+		for (int i = 0; i < _len; i++) {
+			if (i < fromIndex || i > toIndex) {
+				_newData.put(this.data.get(i));
 			}
 		}
-		this.data.removeAll(_data);
+		this.data = _newData;
 	}
 
 	/**
@@ -272,28 +307,33 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	 * @_invokeResult 用于返回方法结果对象
 	 */
 	@Override
-	public void removeData(DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
-		if (this.data.size() == 0) {
+	public void removeData(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+		if (this.data.length() == 0) {
 			return;
 		}
-		List<String> _indexs = _dictParas.getOneTextArray("indexs");
-		List<DoJsonValue> _data = new ArrayList<DoJsonValue>();
-		for (int i = 0; i < _indexs.size(); i++) {
-			int _index = DoTextHelper.strToInt(_indexs.get(i), 0);
+		JSONArray _indexs = DoJsonHelper.getJSONArray(_dictParas, "indexs");
+		Set<Integer> _list = new HashSet<Integer>();
+		JSONArray _newData = new JSONArray();
+		for (int i = 0; i < _indexs.length(); i++) {
+			int _index = _indexs.getInt(i);
 			if (_index < 0) {
 				_index = 0;
 			}
 
-			if (_index != 0 && _index > this.data.size() - 1) {
-				_index = this.data.size() - 1;
+			if (_index != 0 && _index > this.data.length() - 1) {
+				_index = this.data.length() - 1;
 			}
+			_list.add(_index);
+		}
 
-			DoJsonValue _value = this.data.get(_index);
-			if (_value != null) {
-				_data.add(_value);
+		int _len = this.data.length();
+		for (int i = 0; i < _len; i++) {
+			if (!_list.contains(i)) {
+				_newData.put(this.data.get(i));
 			}
 		}
-		this.data.removeAll(_data);
+
+		this.data = _newData;
 	}
 
 	/**
@@ -304,62 +344,49 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	 * @_invokeResult 用于返回方法结果对象
 	 */
 	@Override
-	public void updateOne(DoJsonNode _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
-		if (this.data.size() == 0) {
+	public void updateOne(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+		if (this.data.length() == 0) {
 			return;
 		}
-		int _index = _dictParas.getOneInteger("index", -1);
-		String _data = _dictParas.getOneText("data", "");
+		int _index = DoJsonHelper.getInt(_dictParas, "index", -1);
+		Object _data = DoJsonHelper.get(_dictParas, "data");
 		if (_index < 0) {
 			_index = 0;
 		}
 
-		if (_index != 0 && _index > this.data.size() - 1) {
-			_index = this.data.size() - 1;
+		if (_index != 0 && _index > this.data.length() - 1) {
+			_index = this.data.length() - 1;
 		}
-
-		DoJsonValue _value = new DoJsonValue();
-		_value.loadDataFromText(_data);
-		this.data.remove(_index);
-		this.data.add(_index, _value);
-
+		this.data.put(_index, _data);
 	}
 
 	@Override
 	public int getCount() {
-		return data.size();
+		return data.length();
 	}
 
 	@Override
-	public Object getData(int _index) {
+	public Object getData(int _index) throws JSONException {
 		return this.data.get(_index);
 	}
 
 	@Override
-	public DoJsonValue getJsonData() throws Exception {
-		DoJsonValue _jsonValue = new DoJsonValue();
-		_jsonValue.setArray(data);
-		return _jsonValue;
+	public Object getJsonData() throws Exception {
+		return data;
 	}
 
 	@Override
-	public void setData(int _index, Object _data) {
-		if (_data instanceof DoJsonValue) {
-			this.data.add(_index, (DoJsonValue) _data);
-		}
+	public void setData(int _index, Object _data) throws JSONException {
+		this.data.put(_index, _data);
 	}
 
 	@Override
 	public String serialize() throws Exception {
-		DoJsonValue _jsonValue = new DoJsonValue();
-		_jsonValue.setArray(data);
-		return _jsonValue.exportToText(false);
+		return this.data.toString();
 	}
 
 	@Override
 	public Object unSerialize(String _str) throws Exception {
-		DoJsonValue _value = new DoJsonValue();
-		_value.loadDataFromText(_str);
-		return _value;
+		return DoJsonHelper.loadDataFromText(_str);
 	}
 }

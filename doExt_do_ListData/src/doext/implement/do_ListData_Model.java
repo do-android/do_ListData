@@ -188,14 +188,25 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	 */
 	@Override
 	public void getData(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
-		if (this.data.length() == 0) {
-			return;
-		}
 		JSONArray _data = new JSONArray();
 		JSONArray _indexs = DoJsonHelper.getJSONArray(_dictParas, "indexs");
+		int _len = this.data.length();
+		if (_len == 0) {
+			JSONArray _array = new JSONArray();
+			for (int i = 0; i < _indexs.length(); i++) {
+				_array.put(JSONObject.NULL);
+			}
+			_invokeResult.setResultArray(_array);
+			return;
+		}
+
 		for (int i = 0; i < _indexs.length(); i++) {
 			int _index = _indexs.getInt(i);
-			if (this.data.length() > _index) {
+			if (_index == -1) { // 表示取末尾的数据
+				_data.put(this.data.get(_len - 1));
+				continue;
+			}
+			if (_len > _index) {
 				_data.put(i, this.data.get(_index));
 			} else {
 				_data.put(i, JSONObject.NULL);
@@ -206,7 +217,10 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 
 	@Override
 	public void getOne(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+		// index : 表示要读取的位置，从0开始; 如果 index参数为空或者越界, 则返回数组最后一个元素（如果数组为空则返回null）
+
 		if (this.data.length() == 0) {
+			_invokeResult.setResultValue(JSONObject.NULL);
 			return;
 		}
 		int _index = DoJsonHelper.getInt(_dictParas, "index", -1);
@@ -234,11 +248,11 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 
 	@Override
 	public void getRange(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
-		if (this.data.length() == 0) {
-			return;
-		}
+		// fromIndex : 起始索引位置（必需项），从0开始;
+		// toIndex : 截止索引位置（可选项），从0开始; 如果为空，则表示数组的最后一个元素位置
+
 		int fromIndex = DoJsonHelper.getInt(_dictParas, "fromIndex", -1);
-		int toIndex = DoJsonHelper.getInt(_dictParas, "toIndex", this.data.length());
+		int toIndex = DoJsonHelper.getInt(_dictParas, "toIndex", this.data.length() - 1);
 		if (fromIndex < 0) {
 			fromIndex = 0;
 		}
@@ -251,11 +265,19 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 			toIndex = 0;
 		}
 		if (toIndex >= this.data.length()) {
-			toIndex = this.data.length();
+			toIndex = this.data.length() - 1;
+		}
+		if (this.data.length() == 0) {
+			JSONArray _array = new JSONArray();
+			for (int i = fromIndex; i <= toIndex; i++) {
+				_array.put(JSONObject.NULL);
+			}
+			_invokeResult.setResultArray(_array);
+			return;
 		}
 
 		JSONArray _data = new JSONArray();
-		for (int i = fromIndex; i < toIndex; i++) {
+		for (int i = fromIndex; i <= toIndex; i++) {
 			Object _value = this.data.get(i);
 			if (_value != null) {
 				_data.put(this.data.get(i));
@@ -268,9 +290,12 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 
 	@Override
 	public void removeRange(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
+		// fromIndex : 起始索引位置（必需项），从0开始;
+		// toIndex : 表示要删除的位置，从0开始; 如果 toindex参数为空或者越界就什么都不删除
 		if (this.data.length() == 0) {
 			return;
 		}
+
 		int fromIndex = DoJsonHelper.getInt(_dictParas, "fromIndex", -1);
 		int toIndex = DoJsonHelper.getInt(_dictParas, "toIndex", -1);
 
@@ -286,7 +311,7 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 			toIndex = 0;
 		}
 		if (toIndex >= this.data.length()) {
-			toIndex = this.data.length();
+			toIndex = this.data.length() - 1;
 		}
 
 		JSONArray _newData = new JSONArray();
@@ -350,12 +375,8 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 		}
 		int _index = DoJsonHelper.getInt(_dictParas, "index", -1);
 		Object _data = DoJsonHelper.get(_dictParas, "data");
-		if (_index < 0) {
-			_index = 0;
-		}
-
-		if (_index != 0 && _index > this.data.length() - 1) {
-			_index = this.data.length() - 1;
+		if (_index < 0 || _index > this.data.length() - 1) {
+			return;
 		}
 		this.data.put(_index, _data);
 	}

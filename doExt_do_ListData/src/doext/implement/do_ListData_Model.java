@@ -131,9 +131,10 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 				data.put(i + _index, _obj);
 			}
 
+			int _len = _data.length();
 			for (int i = 0; i < _array.length(); i++) {
 				Object _obj = _array.get(i);
-				data.put(_obj);
+				data.put(i + _len + _index, _obj);
 			}
 
 		} else {
@@ -159,7 +160,7 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 			data.put(_index, _data);
 			for (int i = 0; i < _array.length(); i++) {
 				Object _obj = _array.get(i);
-				data.put(_obj);
+				data.put(i + _index + 1, _obj);
 			}
 
 		} else {

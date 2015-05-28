@@ -298,8 +298,7 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 		}
 
 		int fromIndex = DoJsonHelper.getInt(_dictParas, "fromIndex", -1);
-		int toIndex = DoJsonHelper.getInt(_dictParas, "toIndex", -1);
-
+		int toIndex = DoJsonHelper.getInt(_dictParas, "toIndex", this.data.length() - 1);
 		if (fromIndex < 0) {
 			fromIndex = 0;
 		}
@@ -314,6 +313,7 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 		if (toIndex >= this.data.length()) {
 			toIndex = this.data.length() - 1;
 		}
+		
 
 		JSONArray _newData = new JSONArray();
 		int _len = this.data.length();

@@ -1,6 +1,7 @@
 package dotest.module.frame.debug;
 
 import org.json.JSONObject;
+
 import core.interfaces.DoIApp;
 import core.interfaces.DoIPage;
 import core.interfaces.DoIPageView;
@@ -11,6 +12,18 @@ import core.object.DoUIContainer;
 import core.object.DoUIModule;
 
 public class DoPage implements DoIPage {
+	
+	@Override
+	public void setTransparent(boolean transparent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isTransparent() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 	@Override
 	public DoUIModule createUIModule(DoUIContainer arg0, JSONObject arg1)

@@ -32,6 +32,17 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 		data = new JSONArray();
 	}
 
+	@Override
+	public void loadModel(String _content) throws Exception {
+		super.loadModel(_content);
+		if (data == null) {
+			data = new JSONArray(_content);
+		} else {
+			JSONArray _newData = new JSONArray(_content);
+			addData(_newData, -1);
+		}
+	}
+
 	/**
 	 * 同步方法，JS脚本调用该组件对象方法时会被调用，可以根据_methodName调用相应的接口实现方法；
 	 * 
@@ -118,6 +129,10 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	public void addData(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
 		JSONArray _data = DoJsonHelper.getJSONArray(_dictParas, "data");
 		int _index = DoTextHelper.strToInt(DoJsonHelper.getString(_dictParas, "index", ""), -1);
+		addData(_data, _index);
+	}
+
+	private void addData(JSONArray _data, int _index) throws JSONException {
 		if (_index != -1 && _index <= data.length() - 1) {
 			// 把原数组中从 _index开始的数据保存一份
 			JSONArray _array = new JSONArray();
@@ -143,7 +158,6 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 				data.put(_obj);
 			}
 		}
-
 	}
 
 	@Override
@@ -313,7 +327,6 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 		if (toIndex >= this.data.length()) {
 			toIndex = this.data.length() - 1;
 		}
-		
 
 		JSONArray _newData = new JSONArray();
 		int _len = this.data.length();

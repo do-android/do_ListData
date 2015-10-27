@@ -33,8 +33,18 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	}
 
 	@Override
-	public void loadModel(String _content) throws Exception {
-		super.loadModel(_content);
+	public void loadSync(String _content) throws Exception {
+		super.loadSync(_content);
+		loadModel(_content);
+	}
+
+	@Override
+	public void load(String _content) throws Exception {
+		super.load(_content);
+		loadModel(_content);
+	}
+
+	private void loadModel(String _content) throws Exception {
 		if (data == null) {
 			data = new JSONArray(_content);
 		} else {

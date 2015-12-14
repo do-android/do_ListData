@@ -274,16 +274,21 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	@Override
 	public void getRange(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
 		// fromIndex : 起始索引位置（必需项），从0开始;
-		// toIndex : 截止索引位置（可选项），从0开始; 如果为空，则表示数组的最后一个元素位置
+		// toIndex : 截止索引位置(可选项)，从0开始; 如果为空，则表示数组的最后一个元素位置
 
 		int fromIndex = DoJsonHelper.getInt(_dictParas, "fromIndex", -1);
 		int toIndex = DoJsonHelper.getInt(_dictParas, "toIndex", this.data.length() - 1);
+		
+		if(fromIndex > this.data.length() - 1){
+			throw new Exception("fromIndex = "+ fromIndex +" 参数值非法！");
+		}
+		
+		if(toIndex < fromIndex){
+			throw new Exception("fromIndex 必须小于或等于  toIndex！");
+		}
+		
 		if (fromIndex < 0) {
 			fromIndex = 0;
-		}
-
-		if (fromIndex != 0 && fromIndex > this.data.length() - 1) {
-			fromIndex = this.data.length() - 1;
 		}
 
 		if (toIndex < 0) {
@@ -316,19 +321,24 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 	@Override
 	public void removeRange(JSONObject _dictParas, DoIScriptEngine _scriptEngine, DoInvokeResult _invokeResult) throws Exception {
 		// fromIndex : 起始索引位置（必需项），从0开始;
-		// toIndex : 表示要删除的位置，从0开始; 如果 toindex参数为空或者越界就什么都不删除
+		// toIndex : 截止索引位置(可选项)，从0开始; 如果为空，则表示数组的最后一个元素位置
 		if (this.data.length() == 0) {
 			return;
 		}
 
 		int fromIndex = DoJsonHelper.getInt(_dictParas, "fromIndex", -1);
 		int toIndex = DoJsonHelper.getInt(_dictParas, "toIndex", this.data.length() - 1);
+
+		if(fromIndex > this.data.length() - 1){
+			throw new Exception("fromIndex = "+ fromIndex +" 参数值非法！");
+		}
+		
+		if(toIndex < fromIndex){
+			throw new Exception("fromIndex 必须小于或等于  toIndex！");
+		}
+		
 		if (fromIndex < 0) {
 			fromIndex = 0;
-		}
-
-		if (fromIndex != 0 && fromIndex > this.data.length() - 1) {
-			fromIndex = this.data.length() - 1;
 		}
 
 		if (toIndex < 0) {

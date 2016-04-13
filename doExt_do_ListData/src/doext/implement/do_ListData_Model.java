@@ -278,15 +278,15 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 
 		int fromIndex = DoJsonHelper.getInt(_dictParas, "fromIndex", -1);
 		int toIndex = DoJsonHelper.getInt(_dictParas, "toIndex", this.data.length() - 1);
-		
-		if(fromIndex > this.data.length() - 1){
-			throw new Exception("fromIndex = "+ fromIndex +" 参数值非法！");
+
+		if (fromIndex > this.data.length() - 1) {
+			throw new Exception("fromIndex = " + fromIndex + " 参数值非法！");
 		}
-		
-		if(toIndex < fromIndex){
+
+		if (toIndex < fromIndex) {
 			throw new Exception("fromIndex 必须小于或等于  toIndex！");
 		}
-		
+
 		if (fromIndex < 0) {
 			fromIndex = 0;
 		}
@@ -329,14 +329,14 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 		int fromIndex = DoJsonHelper.getInt(_dictParas, "fromIndex", -1);
 		int toIndex = DoJsonHelper.getInt(_dictParas, "toIndex", this.data.length() - 1);
 
-		if(fromIndex > this.data.length() - 1){
-			throw new Exception("fromIndex = "+ fromIndex +" 参数值非法！");
+		if (fromIndex > this.data.length() - 1) {
+			throw new Exception("fromIndex = " + fromIndex + " 参数值非法！");
 		}
-		
-		if(toIndex < fromIndex){
+
+		if (toIndex < fromIndex) {
 			throw new Exception("fromIndex 必须小于或等于  toIndex！");
 		}
-		
+
 		if (fromIndex < 0) {
 			fromIndex = 0;
 		}
@@ -422,6 +422,9 @@ public class do_ListData_Model extends do_ListData_MAbstract implements do_ListD
 
 	@Override
 	public Object getData(int _index) throws JSONException {
+		if (this.data == null || this.data.length() <= 0) {
+			return null;
+		}
 		return this.data.get(_index);
 	}
 
